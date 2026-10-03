@@ -1,0 +1,86 @@
+name: 构建 ipa
+
+# 公开仓库的 GitHub 托管 runner 是免费的（含 macOS），这条流水线不花钱。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # 需要它把 ipa 传到 Release
+
+jobs:
+  build:
+    # ★ xcode-27 是 GitHub 的 preview 镜像，自带 Xcode 27.0 + iOS 27.0 SDK。
+    #   想要 iOS 27 的超大组件（4×6），就必须用这个 SDK 编译。
+    #   如果这个标签排队太久或不可用，临时改成 macos-26 可以出包，但**拿不到超大组件**。
+    runs-on: xcode-27
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 打印工具链版本（确认 SDK 对不对）
+        run: |
+          xcodebuild -version
+          echo "--- 可用的 iOS SDK ---"
+          xcodebuild -showsdks | grep -i "iphoneos" || true
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        run: xcodegen generate
+
+      - name: 编译（完全关闭签名）
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project MiniBoard.xcodeproj \
+            -scheme MiniBoard \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/MiniBoard.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            > "$RUNNER_TEMP/build.log" 2>&1 \
+            || { echo "=== 编译失败，最后 100 行 ==="; tail -n 100 "$RUNNER_TEMP/build.log"; exit 1; }
+          echo "=== 编译成功，最后 20 行 ==="
+          tail -n 20 "$RUNNER_TEMP/build.log"
+
+      - name: 打包成未签名 .ipa
+        run: |
+          APP="$RUNNER_TEMP/MiniBoard.xcarchive/Products/Applications/MiniBoard.app"
+          test -d "$APP" || { echo "没找到 $APP"; find "$RUNNER_TEMP/MiniBoard.xcarchive" -name "*.app" -maxdepth 5; exit 1; }
+
+          echo "=== App 内嵌的扩展（应该能看到 MiniBoardWidget.appex）==="
+          ls -la "$APP/PlugIns" || echo "⚠️ 没有 PlugIns 目录！组件扩展没被打进去"
+
+          rm -rf "$RUNNER_TEMP/Payload"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry MiniBoard.ipa Payload
+          ls -lh MiniBoard.ipa
+
+      - name: 存成 Action 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiniBoard-ipa
+          path: ${{ runner.temp }}/MiniBoard.ipa
+          retention-days: 30
+
+      - name: 发到 Release（手机上可以直接下载）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view ipa-latest >/dev/null 2>&1 \
+            || gh release create ipa-latest --title "最新构建" \
+                 --notes "由 GitHub Actions 自动构建的**未签名** ipa，用 SideStore 安装。每次 push 都会覆盖更新。"
+          gh release upload ipa-latest "$RUNNER_TEMP/MiniBoard.ipa" --clobber
+          echo "### ✅ 下载地址" >> $GITHUB_STEP_SUMMARY
+          echo "https://github.com/${{ github.repository }}/releases/download/ipa-latest/MiniBoard.ipa" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "用 Safari 打开上面这个链接，文件会存到「文件」App，然后在 SideStore 里导入。" >> $GITHUB_STEP_SUMMARY

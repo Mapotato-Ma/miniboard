@@ -1,0 +1,13 @@
+# XcodeGen 生成物：不要提交，CI 上会重新生成
+*.xcodeproj
+*.xcworkspace
+
+# 构建产物
+build/
+DerivedData/
+*.xcarchive
+Payload/
+*.ipa
+
+# macOS
+.DS_Store
