@@ -92,31 +92,57 @@ https://github.com/<用户名>/miniboard/releases/download/ipa-latest/MiniBoard.
 
 ---
 
-## 三、装 SideStore（只在最初做一次）
+## 三、装一个侧载工具（选一条）
 
-1. 把 iPhone 用 USB 线连到电脑，手机上点「信任」
-2. 电脑上打开 **iLoader** → 用你那个侧载专用 Apple ID 登录 → 选中你的设备
-3. 选 **Install SideStore (Stable)**
-4. **手机上**：
-   - 设置 → 通用 → VPN 与设备管理 → 找到以你 Apple ID 命名的描述文件 → **信任**
-   - 设置 → 隐私与安全性 → 拉到底 → 打开 **开发者模式** → 重启手机
-   - 打开 **LocalDevVPN** → Connect
-   - 打开 **SideStore** → 用同一个 Apple ID 登录
-   - 我的应用 → 点 SideStore 右边那个 **「7 DAYS」** 倒计时 → 手动刷新一次，完成初始化
+先把手机接上电脑，**信任这台电脑**。两条路选一条 —— 区别只在「谁来签名」。
 
-到这一步 SideStore 就装好了。**以后续签、装新包，全在手机上完成。**
+### 路线 A：AltStore Classic（推荐，不需要换区、不需要 VPN）
 
-> ⚠️ 以后每次要装/更新/续签之前，**都要先把 LocalDevVPN 连上**。
+用你那台 **Windows 10+ / macOS** 电脑当签名端。
+
+1. 电脑装 **AltServer**：<https://altstore.io> → Download → AltStore Classic
+2. ⚠️ **Windows 上必须先装 iTunes 和 iCloud，而且必须从 Apple 官网下载，不能用 Microsoft Store 版** —— 用了商店版 AltServer 就认不到手机，这是最常见的翻车点
+3. 右键 AltServer → **以管理员身份运行**（Windows）
+4. 任务栏 AltServer 图标 → **Install AltStore** → 选你的手机 → 输入侧载专用 Apple ID
+5. **手机上**：
+   - 设置 → 通用 → VPN 与设备管理 → 信任那个开发者描述文件
+   - 设置 → 隐私与安全性 → 拉到底 → 打开 **开发者模式** → 重启
+6. 打开 AltStore，登录同一个 Apple ID
+
+**续签**：只要 AltServer 开着、手机和电脑在**同一个 Wi-Fi**，它会自动续 7 天。
+
+### 路线 B：SideStore（装完就彻底不需要电脑）
+
+⚠️ **中国区 App Store 没有上架 LocalDevVPN**（其他区都有）。所以这条路需要：
+
+1. 注册一个**非中国区 Apple ID**（推荐**港区**，商店仍是中文；创建时付款方式选「无」）
+2. App Store 里登录这个 ID → 下载 **LocalDevVPN** → 打开并 Connect
+3. 电脑装 **iLoader**：<https://docs.sidestore.io/zh/docs/installation/prerequisites> → USB 连手机 → 登录 Apple ID → **Install SideStore (Stable)**
+4. **手机上**：设置 → 通用 → VPN 与设备管理 → 信任；设置 → 隐私与安全性 → 开发者模式 → 重启
+5. 打开 SideStore → 登录同一个 Apple ID → 我的应用 → 点右边那个 **「7 DAYS」** 倒计时手动刷新一次，完成初始化
+
+> ⚠️ 每次装/更新/续签前，**都要先把 LocalDevVPN 连上**。
+>
+> ⚠️ SideStore 的公共 Anisette 服务器**锁过不少人的 Apple ID**。要么用官方 Anisette 服务器，要么自建 [`Dadoum/anisette-v3-server`](https://github.com/Dadoum/anisette-v3-server) 再把 SideStore 里的 Anisette URL 指向自己。
+
+### 两条路都一样
+
+- **一定要用单独的 Apple ID**，别用主力号
+- 免费账号**最多同时 3 个 App**（含 AltStore/SideStore 自己），一周最多 10 个 App ID
 
 ---
 
 ## 四、装我们自己的 ipa
 
-1. 手机 Safari 打开上面那个 Release 下载链接 → 文件存到「文件」App
-2. 打开「文件」App，确认 `MiniBoard.ipa` 在 **下载项 / Downloads** 里
-3. 打开 **SideStore** → 我的应用 → 右上角 **+** → 选那个 ipa
-4. 等它签名 + 安装完成，桌面会出现「看板」这个 App
-5. 首次打开如果提示不受信任：设置 → 通用 → VPN 与设备管理 → 信任
+1. 手机 **Safari** 打开这个链接（会自动存到「文件」App）：
+
+   ```
+   https://github.com/Mapotato-Ma/miniboard/releases/download/ipa-latest/MiniBoard.ipa
+   ```
+
+2. 打开 **AltStore**（或 SideStore）→ **My Apps** → 左上角 **+** → 选那个 ipa
+3. 等它签名 + 安装完成，桌面会出现「看板」这个 App
+4. 首次打开如果提示不受信任：设置 → 通用 → VPN 与设备管理 → 信任
 
 ---
 
