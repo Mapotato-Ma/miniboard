@@ -35,11 +35,15 @@ struct MiniBoardWidget: Widget {
         .description("占满整屏的自定义看板")
         // ★ 关键：把 systemExtraLarge 一起声明。
         //   iOS 27 的 4×6 超大组件就靠这一行换来 —— 前提是**用 iOS 27 SDK 编译**。
+        // ★ iOS 27 的 4×6 超大组件在 iPhone 上是**新的一族**：systemExtraLargePortrait。
+        //   老的 systemExtraLarge 是 iPad 横向那个，在 iPhone 上不会被系统采纳 ——
+        //   2026-10-07 实测：只声明 systemExtraLarge 时，桌面只能拖到 large。
         .supportedFamilies([
             .systemSmall,
             .systemMedium,
             .systemLarge,
-            .systemExtraLarge,
+            .systemExtraLargePortrait,   // iPhone 4×6 竖屏超大组件
+            .systemExtraLarge,           // iPad 横向，留着不碍事
         ])
     }
 }

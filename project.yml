@@ -32,7 +32,7 @@ targets:
     info:
       path: Sources/App/Info.plist
       properties:
-        CFBundleDisplayName: 看板
+        CFBundleDisplayName: MiniBoard
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -53,7 +53,7 @@ targets:
     info:
       path: Sources/Widget/Info.plist
       properties:
-        CFBundleDisplayName: 看板
+        CFBundleDisplayName: MiniBoard
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
