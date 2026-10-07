@@ -59,12 +59,14 @@ struct BoardWidgetView: View {
     }
 
     private var familyName: String {
+        if #available(iOS 27.0, *), family == .systemExtraLargePortrait {
+            return "extraLargePortrait ★"
+        }
         switch family {
         case .systemSmall: return "small"
         case .systemMedium: return "medium"
         case .systemLarge: return "large"
         case .systemExtraLarge: return "extraLarge ★"
-        case .systemExtraLargePortrait: return "extraLargePortrait ★"
         case .accessoryCircular: return "accCircular"
         case .accessoryRectangular: return "accRect"
         case .accessoryInline: return "accInline"
@@ -74,21 +76,26 @@ struct BoardWidgetView: View {
 
     // ── 主内容：按尺寸分档 ──
     private var isSmall: Bool { family == .systemSmall }
-    private var isXL: Bool { family == .systemExtraLarge || family == .systemExtraLargePortrait }
+    private var isXL: Bool {
+        if #available(iOS 27.0, *), family == .systemExtraLargePortrait { return true }
+        return family == .systemExtraLarge
+    }
 
     private var clockSize: CGFloat {
+        if #available(iOS 27.0, *), family == .systemExtraLargePortrait { return 92 }
         switch family {
         case .systemSmall: return 34
         case .systemMedium: return 42
-        case .systemExtraLarge, .systemExtraLargePortrait: return 92
+        case .systemExtraLarge: return 92
         default: return 56
         }
     }
 
     private var pad: CGFloat {
+        if #available(iOS 27.0, *), family == .systemExtraLargePortrait { return 26 }
         switch family {
         case .systemSmall: return 12
-        case .systemExtraLarge, .systemExtraLargePortrait: return 26
+        case .systemExtraLarge: return 26
         default: return 18
         }
     }

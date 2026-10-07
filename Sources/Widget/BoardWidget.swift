@@ -38,13 +38,16 @@ struct MiniBoardWidget: Widget {
         // ★ iOS 27 的 4×6 超大组件在 iPhone 上是**新的一族**：systemExtraLargePortrait。
         //   老的 systemExtraLarge 是 iPad 横向那个，在 iPhone 上不会被系统采纳 ——
         //   2026-10-07 实测：只声明 systemExtraLarge 时，桌面只能拖到 large。
-        .supportedFamilies([
-            .systemSmall,
-            .systemMedium,
-            .systemLarge,
-            .systemExtraLargePortrait,   // iPhone 4×6 竖屏超大组件
-            .systemExtraLarge,           // iPad 横向，留着不碍事
-        ])
+        //   它标着 iOS 27.0+，而 deployment target 是 17.0，所以必须用 #available 包起来。
+        .supportedFamilies(Self.families)
+    }
+
+    static var families: Set<WidgetFamily> {
+        var f: Set<WidgetFamily> = [.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge]
+        if #available(iOS 27.0, *) {
+            f.insert(.systemExtraLargePortrait)   // iPhone 4×6 竖屏超大组件
+        }
+        return f
     }
 }
 
